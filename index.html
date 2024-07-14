@@ -23,11 +23,18 @@
                 .attr("height", height + margin.top + margin.bottom)
                 .append("g")
                 .attr("transform", `translate(${margin.left},${margin.top})`);
-
-            const data = await d3.csv('https://davidrs5.github.io/cars.csv');
-            
+            current_cylinder_num = 2
+            const car_data = await d3.csv('https://davidrs5.github.io/cars.csv');
+            var car_cylinders = {}
+            for (let i = 0; i < car_data.length; i++) {
+                c = car_data[i].cylinders
+                if (!(c in car_cylinders)) {
+                    car_cylinders[c] = []
+                }
+                car_cylinders[c] += car_data[i]
+            }
             const x = d3.scaleTime()
-                .domain(d3.extent(data, function (d) { return d.year; }))
+                .domain(d3.extent(car_cylinders[current_cylinder_num], function (d) { return d.year; }))
                 .range([0, width]);
             svg.append("g")
                 .attr("transform", `translate(0, ${height})`)
@@ -35,14 +42,14 @@
 
             // Add Y axis
             const y = d3.scaleLinear()
-                .domain([0, d3.max(data, function (d) { return +d.mpg; })])
+                .domain([0, d3.max(car_cylinders[current_cylinder_num], function (d) { return +d.mpg; })])
                 .range([height, 0]);
             svg.append("g")
                 .call(d3.axisLeft(y));
 
             // Add the line
             svg.append("path")
-                .datum(data)
+                .datum(car_cylinders[current_cylinder_num])
                 .attr("fill", "none")
                 .attr("stroke", "steelblue")
                 .attr("stroke-width", 1.5)
@@ -50,11 +57,9 @@
                     .x(function (d) { return x(d.year) })
                     .y(function (d) { return y(d.mpg) })
                 )
-
-            
         }
     </script>
-    Hello World
+    
 </body>
 
 </html>
