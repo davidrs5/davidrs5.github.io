@@ -25,7 +25,7 @@
                 .attr("transform", `translate(${margin.left},${margin.top})`);
 
             const data = await d3.csv('https://davidrs5.github.io/cars.csv');
-            document.getElementById("data").innerHTML = data
+            
             const x = d3.scaleTime()
                 .domain(d3.extent(data, function (d) { return d.year; }))
                 .range([0, width]);
