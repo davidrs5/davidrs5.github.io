@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
-<script src="https://d3js.org/d3.v6.min.js"></script>
+<script src="https://d3js.org/d3.v6.js"></script>
 <style>
     .chart rect {
         fill: steelblue
@@ -33,6 +33,7 @@
                 }
                 car_cylinders[c] += car_data[i]
             }
+            console.log(car_cylinders[current_cylinder_num])
             const x = d3.scaleTime()
                 .domain(d3.extent(car_cylinders[current_cylinder_num], function (d) { return d.year; }))
                 .range([0, width]);
