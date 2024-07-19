@@ -6,6 +6,19 @@
     .chart rect {
         fill: steelblue
     }
+    #narrative {
+        float: left;
+        width: 150px; 
+    }
+    #graph_area {
+        float: left;
+        width: 350px; 
+    }
+    #legend svg {
+        float: left;
+        
+        width: 450px; 
+   }
 </style>
 <html>
 <head>
@@ -27,16 +40,26 @@
             <label for="c8">8</label>
             <input type="radio" id="c10" name="cylinders" value="10"  onchange="set_cylinder(10)"/>
             <label for="c10">10</label>
+            <button id="next" type="button" onclick="change_cylinder()">Next</button>
           </div>
         </fieldset>
       </form>
-    <div id='graph_area'></div>
+      <div>
+      <div id='narrative'>Corporate average fuel economy (CAFE) standards are regulations in the United States, 
+        first enacted by the United States Congress in 1975, after the 1973–74 Arab Oil Embargo, to improve the 
+        average fuel economy of cars and light trucks (trucks, vans and sport utility vehicles) produced for sale 
+        in the United States.
+      </div>
+      <div id='graph_area'></div>
+      <div id="legend"></div>
+      </div>
     <script>
         var axy1 = {};
+        // x,y,dx,dy
         axy1[4]=[300,260,0,30];
-        axy1[6]=[300,305,0,-125];
-        axy1[8]=[300,330,0,-155];
-        axy1[10]=[300,345,0,-155];
+        axy1[6]=[300,305,-100,-125];
+        axy1[8]=[300,330,-100,-155];
+        axy1[10]=[300,345,-100,-155];
         var car_cylinders = {};
         var cafe_data = {};
         current_cylinder_num = 4;
@@ -47,7 +70,7 @@
             svg = d3.select("#graph_area")
             // set the dimensions and margins of the graph
                 .append("svg")
-                .attr("width", width + margin.left + margin.right)
+                .attr("width", width + margin.left + margin.right + 40)
                 .attr("height", height + margin.top + margin.bottom)
                 .append("g")
                 .attr("transform", `translate(${margin.left},${margin.top})`);
@@ -61,40 +84,106 @@
             }
             cafe_data = await d3.csv('https://davidrs5.github.io/cafe.csv');
             oil_data = await d3.csv('https://davidrs5.github.io/oil.csv');
+            create_tooltip();
+            create_legend();
+            create_axis_titles();
             set_cylinder(4);
         }
+        function change_cylinder() {
+            current_cylinder_num += 2
+            if (current_cylinder_num == 10)
+                d3.select("#next").text("start again")
+            if (current_cylinder_num == 12)
+            {
+                d3.select("#next").text("next")
+                d3.select("input[type='radio'][value='10']").attr('checked',false);
+                current_cylinder_num = 4
+            }
+            radiobtn = document.getElementById("c" + current_cylinder_num);
+            radiobtn.checked = true;
+            set_cylinder(current_cylinder_num);
+        }
+        // create a tooltip
+        var graph_tooltip;
+        function create_tooltip() {
+            graph_tooltip = d3.select("body")
+                .append("div")
+                .style("opacity", 0)
+                .attr("class", "tooltip")
+                .style("background-color", "white")
+                .style("border", "solid")
+                .style("border-width", "5px")
+                .style("border-radius", "15px")
+                .style("padding", ".5rem")
+                .style("position","absolute")
+                .style("pointer-events","none")
+                
+        }
 
-        function set_cylinder(num) {
-            current_cylinder_num = num
-            // clear
-            // d3.select("#graph_area").html=""
-            svg.selectAll("*").remove();
-            // svg.html=""
-            const x = d3.scaleLinear()
-                .domain([1984,2025])
-                .range([0, width]);
-            svg.append("g")
-                .attr("transform", `translate(0, ${height})`)
-                .call(d3.axisBottom(x).tickFormat(d3.format("d")));
+        function create_axis_titles() {
+            svg.append("text")      
+                .attr("transform", "translate(" + (width / 2) + " ," + (height + margin.bottom) + ")")
+                .style("text-anchor", "middle")
+                .text("Year");
+            svg.append("text")
+                .attr("transform", 'rotate(-90)')
+                .attr("y", 0 - margin.left)
+                .attr("x",0 - (height / 2))
+                .attr("dy", '1em')
+                .style("text-anchor", 'middle')
+                .text("MPG");
+            svg.append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", width + 40)
+                .attr("x",0 - (height / 2))
+                .attr("dy", "1em")
+                .style("text-anchor", "middle")
+                .text("Dollars Per Barrel");
+        }
 
-            // Add Y axis
-            const y = d3.scaleLinear()
-                .domain([10, 62])
-                .range([height, 0]);
-            svg.append("g")
-                .call(d3.axisLeft(y));
-
-            // Add the line
+        function create_legend() {
+            //Initialize legend
+            var chartData = [
+                {name: "CAFE", color: "green"},
+                {name: "Oil Price per Barrel", color: "black"},
+                {name: "MPG average over largest manufacturers", color: "steelblue"},
+                ];
+            var legendItemSize = 12;
+            var legendSpacing = 4;
+            var xOffset = 150;
+            var yOffset = 100;
+            var legend = d3
+            .select('#legend')
+            .append('svg')
+                        .selectAll('.legendItem')
+                        .data(chartData);
+            
+            //Create legend items
+            legend
+            .enter()
+            .append('rect')
+            .attr('class', 'legendItem')
+            .attr('width', legendItemSize)
+            .attr('height', legendItemSize)
+            .style('fill', d => d.color)
+            .attr('transform',
+                            (d, i) => {
+                                var x = xOffset;
+                                var y = yOffset + (legendItemSize + legendSpacing) * i;
+                                return `translate(${x}, ${y})`;
+                            });
+            
+            //Create legend labels
+            legend
+            .enter()
+            .append('text')
+            .attr('x', xOffset + legendItemSize + 5)
+            .attr('y', (d, i) => yOffset + (legendItemSize + legendSpacing) * i + 12)
+            .text(d => d.name);  
+        }
+  
+        function add_cafe_and_oil(x,y,y_dollar) {
             svg.append("path")
-                .datum(car_cylinders[current_cylinder_num])
-                .attr("fill", "none")
-                .attr("stroke", "steelblue")
-                .attr("stroke-width", 2.0)
-                .attr("d", d3.line()
-                    .x(function (d) { return x(parseInt(d.year,10)) })
-                    .y(function (d) { return y(parseInt(d.mpg,10)) })
-                )
-                svg.append("path")
                 .datum(cafe_data)
                 .attr("fill", "none")
                 .attr("stroke", "green")
@@ -103,15 +192,62 @@
                     .x(function (d) { return x(parseInt(d.year,10)) })
                     .y(function (d) { return y(parseInt(d.num,10)) })
                 )
-                svg.append("path")
+
+            // add the dots with tooltips
+            svg.selectAll("dot")
+                .data(cafe_data)
+            .enter().append("circle")
+                .attr("fill", "green")
+                .attr("r", 5)
+                .attr("cx", function(d) { return x(parseInt(d.year,10)); })
+                .attr("cy", function(d) { return y(parseInt(d.num,10)); })
+                .on("mouseover", function(event,d) {
+                    graph_tooltip.transition()
+                    .style("border-color", "green")
+                    .attr("stroke-width", 2.5)
+                    .style("opacity", 1);
+                    graph_tooltip.html("Year: " + parseInt(d.year,10) + "<br/>MPG Required: " + parseInt(d.num,10))
+                    .style("left", (event.pageX) + "px")
+                    .style("top", (event.pageY - 28) + "px");
+                })
+                .on("mouseout", function(d) {
+                    graph_tooltip.transition()
+                    .style("opacity", 0);
+                });
+
+            svg.append("path")
                 .datum(oil_data)
                 .attr("fill", "none")
                 .attr("stroke", "black")
                 .attr("stroke-width", 2.5)
                 .attr("d", d3.line()
-                    .x(function (d) { return x(parseInt(d.year,10)) })
-                    .y(function (d) { return y(parseInt(d.num,10)) })
+                    .x(function (d) { return x(parseInt(d.Year,10)) })
+                    .y(function (d) { return y_dollar(parseInt(d.Dollars,10)) })
                 )
+
+            // add the dots with tooltips
+            svg.selectAll("dot")
+                .data(oil_data)
+            .enter().append("circle")
+                .attr("r", 5)
+                .attr("stroke", "black")
+                .attr("cx", function(d) { return x(parseInt(d.Year,10)); })
+                .attr("cy", function(d) { return y_dollar(parseInt(d.Dollars,10)); })
+                .on("mouseover", function(event,d) {
+                    graph_tooltip.transition()
+                    .style("opacity", 1)
+                    .style("border-color", "black");
+                    graph_tooltip.html("Year: " + parseInt(d.Year,10) + "<br/>$" + parseInt(d.Dollars,10))
+                    .style("left", (event.pageX) + "px")
+                    .style("top", (event.pageY - 28) + "px");
+                })
+                .on("mouseout", function(d) {
+                    graph_tooltip.transition()
+                    .style("opacity", 0);
+                });
+        }
+
+        function add_annotations() {
             d3.select(".annotations").remove()
             annotations = 
             [{
@@ -123,8 +259,8 @@
                 // If you don't provide a custom "type" attribute in your options dictionary, , 
                 // the default type in the getAnnotations function will be used.
                 data: car_cylinders[current_cylinder_num],
-                x:axy1[current_cylinder_num][0],
-                y:axy1[current_cylinder_num][1],
+                x: axy1[current_cylinder_num][0],
+                y: axy1[current_cylinder_num][1],
                 dx: axy1[current_cylinder_num][2], 
                 dy: axy1[current_cylinder_num][3] 
             }]    
@@ -140,9 +276,80 @@
                 .attr("class", "annotation-group")
                 .call(makeAnnotations)
         }
-        
+
+        function add_mpg(x,y,num) {
+            current_cylinder_num = num
+            // Add the line
+            svg.append("path")
+                .datum(car_cylinders[current_cylinder_num])
+                .attr("fill", "none")
+                .attr("stroke", "steelblue")
+                .attr("stroke-width", 2.0)
+                .attr("d", d3.line()
+                    .x(function (d) { return x(parseInt(d.year,10)) })
+                    .y(function (d) { return y(parseInt(d.mpg,10)) })
+                )
+            
+            // add the dots with tooltips
+            svg.selectAll("dot")
+                .data(car_cylinders[current_cylinder_num])
+            .enter().append("circle")
+                .attr("fill", "steelblue")
+                .attr("r", 5)
+                .attr("cx", function(d) { return x(parseInt(d.year,10)); })
+                .attr("cy", function(d) { return y(parseInt(d.mpg,10)); })
+                .on("mouseover", function(event,d) {
+                    graph_tooltip.transition()
+                    .duration(200)
+                    .style("border-color", "steelblue")
+                    .style("opacity", .9);
+                    graph_tooltip.html("Year: " + parseInt(d.year,10) + "<br/>Average MPG: " + parseInt(d.mpg,10))
+                    graph_tooltip.style("left", (event.pageX) + "px")
+                    .style("top", (event.pageY - 28) + "px");
+                })
+                .on("mouseout", function(d) {
+                    graph_tooltip.transition()
+                    .duration(500)
+                    .style("opacity", 0);
+                });
+        }
+
+        function set_cylinder(num) {
+            // clear
+            // d3.select("#graph_area").html=""
+            svg.selectAll("*").remove();
+            // svg.html=""
+            const x = d3.scaleLinear()
+                .domain([1984,2025])
+                .range([0, width]);
+            svg.append("g")
+                .attr("transform", `translate(0, ${height})`)
+                .call(d3.axisBottom(x).tickFormat(d3.format("d")));
+
+            // Add MPG Y axis
+            const y = d3.scaleLinear()
+                .domain([10, 62])
+                .range([height, 0]);
+            svg.append("g")
+                .call(d3.axisLeft(y));
+
+            // Add Dollars Y axis
+            const y_dollar = d3.scaleLinear()
+                .domain([10, 100])
+                .range([height, 0]);
+            svg.append("g")
+                .attr("transform", "translate(" + width + " ,0)")
+                .call(d3.axisRight(y_dollar));
+
+            add_mpg(x,y,num)
+            add_cafe_and_oil(x,y,y_dollar);
+            add_annotations();
+        }
         </script>
-    
+        <div id='narrative-2008'>
+            "The Ford F-Series full-size pickup truck 515,513. "
+         </div>
+        
 </body>
 
 </html>
