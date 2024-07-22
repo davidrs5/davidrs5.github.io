@@ -15,15 +15,30 @@
         width: 350px; 
     }
     #legend svg {
-        float: left;
         width: 250px; 
-   }
+    }
+    #top {
+        float: none;
+        height:420px;
+    }
+    #bottom {
+        float: none;
+        height:420px;
+    }
+    #ford_note {
+        float: left;
+        width: 150px; 
+    }
+    #f150_area {
+        float: left;
+        width: 350px; 
+    }
 </style>
 <html>
 <head>
-    <title>MPG Rating 1984-2021</title>
-    <h2>Factors of Change for MPG</h2>
-    <h4>The inflexibility of average MPG ratings can be symbolized by the popularity <br/>of one model - the F-150 truck</h4>
+    <title>Trucks and MPG</title>
+    <h2>Americans Love Their Trucks</h2>
+    <h4>The inflexibility of average MPG ratings can be symbolized<br/>by the popularity of one model - the F-150 truck</h4>
 </head>
       
 <body onload='init()'>
@@ -43,17 +58,20 @@
           </div>
         </fieldset>
       </form>
-      <div>
-      <div id='narrative'>Corporate average fuel economy (CAFE) standards are regulations in the United States, 
-        first enacted by the United States Congress in 1975, after the 1973–74 Arab Oil Embargo, to improve the 
-        average fuel economy of cars and light trucks (trucks, vans and sport utility vehicles) produced for sale 
-        in the United States.
+      <div id="top">
+        <div id='narrative'>Corporate average fuel economy (CAFE) standards were created in 1975, after an Oil Embargo, to improve  
+            average fuel economy.  But it was no match for the most popular vehicle sold - the Ford F-150, which starts with 6 cylinders. 
+            The average 4 cylinder MPG rating shows slight improvement after 4 decades, but...
+        </div>
+        <div id='graph_area'></div>
+        <div id="legend"></div>
       </div>
-      <div id='graph_area'></div>
-      <div id="legend"></div>
-      </div>
-      <div id='ford_note'>
-        In 1975, Ford introduced the F-150 after a global fuel crisis. It gained popularity because it looked similar to the F-100, but categorized as a heavy-duty truck to avoid emissions regulations.
+      <h3>Ford F-150 Truck Sales</h3>
+      <div id="bottom">
+        <div id='ford_note'>
+            In 1975, Ford introduced the F-150 after a global fuel crisis. It gained popularity because it looked similar to the F-100, but categorized as a heavy-duty truck to avoid emissions regulations.
+        </div>
+        <div id='f150_area'></div>
       </div>
     <script>
         var axy1 = {};
@@ -68,6 +86,9 @@
         const margin = { top: 10, right: 30, bottom: 30, left: 60 },
             width = 460 - margin.left - margin.right,
             height = 400 - margin.top - margin.bottom;
+        const margin2 = { top: 10, right: 30, bottom: 30, left: 60 },
+            width2 = 460 - margin2.left - margin2.right,
+            height2 = 400 - margin2.top - margin2.bottom;
         async function init() {
             svg = d3.select("#graph_area")
             // set the dimensions and margins of the graph
@@ -76,6 +97,13 @@
                 .attr("height", height + margin.top + margin.bottom)
                 .append("g")
                 .attr("transform", `translate(${margin.left},${margin.top})`);
+            svg_ford = d3.select("#f150_area")
+            // set the dimensions and margins of the graph
+                .append("svg")
+                .attr("width", width2 + margin2.left + margin2.right + 40)
+                .attr("height", height2 + margin2.top + margin2.bottom)
+                .append("g")
+                .attr("transform", `translate(${margin2.left},${margin2.top})`);
             const car_data = await d3.csv('https://davidrs5.github.io/cars.csv');
             for (let i = 0; i < car_data.length; i++) {
                 c = car_data[i].cylinders
@@ -90,6 +118,7 @@
             create_tooltip();
             create_legend();
             set_cylinder(4);
+            add_F150_highlights();
         }
         function change_cylinder() {
             current_cylinder_num += 2
@@ -152,8 +181,8 @@
                 ];
             var legendItemSize = 12;
             var legendSpacing = 4;
-            var xOffset = 150;
-            var yOffset = 100;
+            var xOffset = 110;
+            var yOffset = 10;
             var legend = d3
             .select('#legend')
             .append('svg')
@@ -254,22 +283,44 @@
             // https://www.upi.com/Archives/1989/01/05/Pickup-trucks-lead-the-best-selling-vehicle-list-again-in-1988/8794599979600/
             // https://www.orlandosentinel.com/1988/01/08/best-selling-vehicle-in-87-was-ford-truck/
         function add_F150_highlights() {
+            const x_ford = d3.scaleLinear()
+                .domain([1984,2025])
+                .range([0, width]);
+            svg_ford.append("g")
+                .attr("transform", `translate(0, ${height2})`)
+                .call(d3.axisBottom(x_ford).tickFormat(d3.format("d")));
+            // Add MPG Y axis
+            const y_ford = d3.scaleLinear()
+                .domain([0, 1000000])
+                .range([height2, 0]);
+            svg_ford.append("g")
+                .call(d3.axisLeft(y_ford));
             // add the dots with tooltips
-            svg.selectAll("dot")
+            svg_ford.append("path")
+                .datum(f_data)
+                .attr("fill", "none")
+                .attr("stroke", "blue")
+                .attr("stroke-width", 2.5)
+                .attr("d", d3.line()
+                    .x(function (d) { return x_ford(parseInt(d.year,10)) })
+                    .y(function (d) { return y_ford(parseInt(d.sales,10)) })
+                )
+
+            svg_ford.selectAll("dot")
                 .data(f_data)
             .enter().append("circle")
                 .attr("fill", "blue")
-                .attr("r", 5)
-                .attr("cx", function(d) { return x(parseInt(d.year,10)); })
-                .attr("cy", function(d) { return y(parseInt(0,10)); })
+                .attr("r", 10)
+                .attr("cx", function(d) { return x_ford(parseInt(d.year,10)); })
+                .attr("cy", function(d) { return y_ford(parseInt(d.sales,10)); })
                 .on("mouseover", function(event,d) {
                     graph_tooltip.transition()
                     .style("border-color", "blue")
                     .attr("stroke-width", 2.5)
                     .style("opacity", 1);
                     ford_note = document.getElementById("ford_note");
-                    ford_note.html(d.note)
-                    graph_tooltip.html("Sales: " + parseInt(d.sales,10))
+                    ford_note.innerHTML = d.note
+                    graph_tooltip.html("Ford F150 Sales: " + parseInt(d.sales,10))
                     .style("left", (event.pageX) + "px")
                     .style("top", (event.pageY - 28) + "px");
                 })
@@ -312,14 +363,6 @@
             }]  
             // In 1975, Ford introduced the F-150 after a global fuel crisis. It gained popularity because it looked similar to the F-100, but categorized as a heavy-duty truck to avoid emissions regulations.
             // Because of the designation as a heavy-duty truck it didn't need catalytic converters or smog pumps and burned "regular" leaded gasoline
-            // In 1987, The eighth generation brought a more aerodynamic design and electronic fuel injection.
-            // In 1989, The F-Series became America's best selling vehicle, which it stll is.
-            // In 1992 ~500,000, The ninth generation featured a more rounded, modern look with increased towing and payload capabilities, and special edition models.
-            // In 1997, 746,111 The tenth generation bacame more spacious and comfortable with safety and technology upgrades.
-            // In 2004, 939,511 The eleventh generation came with a bold, distinctive design and the Triton V-8 Engine option was introduced, along with improving ride quality, handling, safety features and interior amenities.
-            // In 2009, 413,625 The twelfth generation introduced the EcoBoost V6 engine, with enhanced work capabilities.
-            // In 2015, 780,354 The thirteenth generation featured aluminum body construction which reduced weight by 750 pounds, improved fuel efficiency and performance. A twin-turbo V6 option, adaptive cruise control and lane-keeping assist were introduced.
-            // In 2021, 726,004 The fourteenth and current generation introduced a hybrid powertrain option, start-stop and a Pro Power Onboard generator, turning the truck into a mobile power station.
             var makeAnnotations = d3.annotation()
                 .editMode(true)
                 //also can set and override in the note.padding property
