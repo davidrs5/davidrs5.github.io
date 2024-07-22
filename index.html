@@ -16,15 +16,14 @@
     }
     #legend svg {
         float: left;
-        
-        width: 450px; 
+        width: 250px; 
    }
 </style>
 <html>
 <head>
-    <title>MPG Rating or CO2 output 1984-2021</title>
-    <h2>Factors of Change for MPG or CO<sup>2</sup></h2>
-    <h4>Has the average mpg increased or co<sup>2</sup> decreased over time<br>depending on cylinders, CAFE or the price of oil?</h4>
+    <title>MPG Rating 1984-2021</title>
+    <h2>Factors of Change for MPG</h2>
+    <h4>The inflexibility of average MPG ratings can be symbolized by the popularity <br/>of one model - the F-150 truck</h4>
 </head>
       
 <body onload='init()'>
@@ -52,6 +51,9 @@
       </div>
       <div id='graph_area'></div>
       <div id="legend"></div>
+      </div>
+      <div id='ford_note'>
+        In 1975, Ford introduced the F-150 after a global fuel crisis. It gained popularity because it looked similar to the F-100, but categorized as a heavy-duty truck to avoid emissions regulations.
       </div>
     <script>
         var axy1 = {};
@@ -84,9 +86,9 @@
             }
             cafe_data = await d3.csv('https://davidrs5.github.io/cafe.csv');
             oil_data = await d3.csv('https://davidrs5.github.io/oil.csv');
+            f_data = await d3.csv('https://davidrs5.github.io/FNotes.csv');
             create_tooltip();
             create_legend();
-            create_axis_titles();
             set_cylinder(4);
         }
         function change_cylinder() {
@@ -145,8 +147,8 @@
             //Initialize legend
             var chartData = [
                 {name: "CAFE", color: "green"},
-                {name: "Oil Price per Barrel", color: "black"},
-                {name: "MPG average over largest manufacturers", color: "steelblue"},
+                {name: "Oil $/Barrel", color: "black"},
+                {name: "mean MPG", color: "steelblue"},
                 ];
             var legendItemSize = 12;
             var legendSpacing = 4;
@@ -246,6 +248,36 @@
                     .style("opacity", 0);
                 });
         }
+            // 
+            // Because of the designation as a heavy-duty truck it didn't need catalytic converters or smog pumps and burned "regular" leaded gasoline
+            // https://www.fordification.net/tech/production-numbers.htm
+            // https://www.upi.com/Archives/1989/01/05/Pickup-trucks-lead-the-best-selling-vehicle-list-again-in-1988/8794599979600/
+            // https://www.orlandosentinel.com/1988/01/08/best-selling-vehicle-in-87-was-ford-truck/
+        function add_F150_highlights() {
+            // add the dots with tooltips
+            svg.selectAll("dot")
+                .data(f_data)
+            .enter().append("circle")
+                .attr("fill", "blue")
+                .attr("r", 5)
+                .attr("cx", function(d) { return x(parseInt(d.year,10)); })
+                .attr("cy", function(d) { return y(parseInt(0,10)); })
+                .on("mouseover", function(event,d) {
+                    graph_tooltip.transition()
+                    .style("border-color", "blue")
+                    .attr("stroke-width", 2.5)
+                    .style("opacity", 1);
+                    ford_note = document.getElementById("ford_note");
+                    ford_note.html(d.note)
+                    graph_tooltip.html("Sales: " + parseInt(d.sales,10))
+                    .style("left", (event.pageX) + "px")
+                    .style("top", (event.pageY - 28) + "px");
+                })
+                .on("mouseout", function(d) {
+                    graph_tooltip.transition()
+                    .style("opacity", 0);
+                });
+        }
 
         function add_annotations() {
             d3.select(".annotations").remove()
@@ -263,7 +295,31 @@
                 y: axy1[current_cylinder_num][1],
                 dx: axy1[current_cylinder_num][2], 
                 dy: axy1[current_cylinder_num][3] 
-            }]    
+            },
+            {
+                note: {
+                        label: "Obama CAFE Implemented",
+                        title: "2011"
+                },
+                id: "1",
+                // If you don't provide a custom "type" attribute in your options dictionary, , 
+                // the default type in the getAnnotations function will be used.
+                data: car_cylinders[current_cylinder_num],
+                x: axy1[current_cylinder_num][0],
+                y: axy1[current_cylinder_num][1],
+                dx: axy1[current_cylinder_num][2], 
+                dy: axy1[current_cylinder_num][3] 
+            }]  
+            // In 1975, Ford introduced the F-150 after a global fuel crisis. It gained popularity because it looked similar to the F-100, but categorized as a heavy-duty truck to avoid emissions regulations.
+            // Because of the designation as a heavy-duty truck it didn't need catalytic converters or smog pumps and burned "regular" leaded gasoline
+            // In 1987, The eighth generation brought a more aerodynamic design and electronic fuel injection.
+            // In 1989, The F-Series became America's best selling vehicle, which it stll is.
+            // In 1992 ~500,000, The ninth generation featured a more rounded, modern look with increased towing and payload capabilities, and special edition models.
+            // In 1997, 746,111 The tenth generation bacame more spacious and comfortable with safety and technology upgrades.
+            // In 2004, 939,511 The eleventh generation came with a bold, distinctive design and the Triton V-8 Engine option was introduced, along with improving ride quality, handling, safety features and interior amenities.
+            // In 2009, 413,625 The twelfth generation introduced the EcoBoost V6 engine, with enhanced work capabilities.
+            // In 2015, 780,354 The thirteenth generation featured aluminum body construction which reduced weight by 750 pounds, improved fuel efficiency and performance. A twin-turbo V6 option, adaptive cruise control and lane-keeping assist were introduced.
+            // In 2021, 726,004 The fourteenth and current generation introduced a hybrid powertrain option, start-stop and a Pro Power Onboard generator, turning the truck into a mobile power station.
             var makeAnnotations = d3.annotation()
                 .editMode(true)
                 //also can set and override in the note.padding property
@@ -344,12 +400,9 @@
             add_mpg(x,y,num)
             add_cafe_and_oil(x,y,y_dollar);
             add_annotations();
+            create_axis_titles();
         }
         </script>
-        <div id='narrative-2008'>
-            "The Ford F-Series full-size pickup truck 515,513. "
-         </div>
-        
 </body>
 
 </html>
