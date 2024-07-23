@@ -366,7 +366,7 @@
                     .style("opacity", 1);
                     ford_note = document.getElementById("ford_note");
                     ford_note.innerHTML = d.note
-                    graph_tooltip.html("Ford F150 Sales: " + parseInt(d.sales,10) + " Thousand")
+                    graph_tooltip.html("Ford F-150 Sales: " + parseInt(d.sales,10) + " Thousand")
                     .style("left", (event.pageX) + "px")
                     .style("top", (event.pageY - 28) + "px");
                 })
@@ -462,7 +462,7 @@
                 dx: axy7[current_cylinder_num][2], dy: axy7[current_cylinder_num][3] 
             }]
             var makeAnnotations = d3.annotation()
-                .editMode(true)
+                .editMode(false)
                 .notePadding(2)
                 .type(d3.annotationLabel)
                 .annotations(annotations)
