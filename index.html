@@ -41,12 +41,25 @@
         font-weight: bold;
         color: "black";
     }
+    h2, .h2 {
+        margin-top: 0.3em;
+        margin-bottom: 0.3em;
+    }
+    h4, .h4 {
+        margin-top: 0.1em;
+        margin-bottom: 0.1em;
+    }
+    h5, .h5 {
+        margin-top: 0.5em;
+        margin-bottom: 0.5em;
+    }
 </style>
 <html>
 <head>
     <title>Trucks and MPG</title>
     <h2>Americans Love Their Trucks</h2>
-    <h4>The inflexibility of average MPG ratings can be symbolized<br/>by the popularity of one model - the F-150 truck</h4>
+    <h4>The inflexibility of average MPG ratings can be symbolized<br/>by the popularity of one model - the F-150 truck.</h4>
+    <h5>Compare the CAFE standard, MPG rating and oil price over time up top<br>and the Ford F-150 sales on the bottom.  The MPG rating is an average of the <br>top-selling vehicles over this time period.</h5>
 </head>
       
 <body onload='init()'>
@@ -82,6 +95,25 @@
             Mouse over the dots to see how little the MPG ratings have changed over 4 decades of the F-150!
         </div>
         <div id='f150_area'></div>
+      </div>
+      <div id="references">
+        Source citation:<br>
+        Oak Ridge National Laboratory for the U.S. Department of Energy and the U.S. Environmental Protection Agency.
+        <a href="https://www.fueleconomy.gov/feg/epadata/emissions.csv.zip">Fuel Economy for vehicles with CO2 (zip download)</a><br>
+        U.S. Energy Information Administration, 7/2024, 
+        <a href="https://www.eia.gov/dnav/pet/hist/LeafHandler.ashx?n=pet&s=f000000__3&f=m">US Crude Oil First Purchase Price Dollars per Barrel</a><br>
+        Wikipedia contributors, "Corporate average fuel economy," Wikipedia, The Free Encyclopedia,<br>
+        https://en.wikipedia.org/w/index.php?title=Corporate_average_fuel_economy&oldid=1232623684 (accessed July 23, 2024).<br>
+        FORDification.net, 2018, <a href="https://www.fordification.net/tech/production-numbers.htm">1973-1979 Ford F-series Production Numbers</a><br>
+        United Press International, Inc, 2024, <a href="https://www.upi.com/Archives/1989/01/05/Pickup-trucks-lead-the-best-selling-vehicle-list-again-in-1988/8794599979600/">Pickup trucks lead the best-selling vehicle list again in 1988</a><br>
+        Orlando Sentinal, 1988, <a href="https://www.orlandosentinel.com/1988/01/08/best-selling-vehicle-in-87-was-ford-truck/">BEST SELLING VEHICLE IN '87 WAS FORD TRUCK</a><br>
+        Oak Ridge National Laboratory for the U.S. Department of Energy and the U.S. Environmental Protection Agency, 2024, <a href="https://www.fueleconomy.gov/feg/PowerSearch.do?action=noform&path=1&year1=2000&year2=2022&make=ford&baseModel=f150&srchtyp=ymm&pageno=1&rowLimit=200&sortBy=Comb&tabView=0">Ford MPG rating 2000s</a><br>
+        JAMES D. HAMILTON, University of California, San Diego, 2009, <a href="https://www.brookings.edu/wp-content/uploads/2016/07/2009a_bpea_hamilton-1.pdf">Causes and Consequences of the Oil Shock of 2007–08</a><br>
+        Anastasios G. Malliaris (Loyola University Chicago, tmallia@luc.edu), Ramaprasad Bhar (The University of New South Wales), 11/2011, <a href="https://ecommons.luc.edu/cgi/viewcontent.cgi?article=1087&context=business_facpubs">Oil Prices and the Impact of the Financial Crisis of 2007-2009</a><br>
+        Marc Stocker, World Bank’s Country Economist for Madagascar; John Baffes, Senior Agriculture Economist, Development Economics Prospects Group; Dana Vorisek, Senior Economist, Prospects Group, 2018
+        <a href="https://blogs.worldbank.org/en/developmenttalk/what-triggered-oil-price-plunge-2014-2016-and-why-it-failed-deliver-economic-impetus-eight-charts">What triggered the oil price plunge of 2014-2016 and why it failed to deliver an economic impetus in eight charts</a><br>
+        U.S. Energy Information Administration, 2022, 
+        <a href="https://www.eia.gov/todayinenergy/detail.php?id=50738">Crude oil prices increased in 2021 as global crude oil demand outpaced supply</a><br>
       </div>
     <script>
         var axy1 = {}, axy2 = {}, axy3 = {}, axy4 = {}, axy5 = {}, axy6 = {}, axy7 = {};
@@ -223,7 +255,13 @@
             .append('text')
             .attr('x', xOffset + legendItemSize + 5)
             .attr('y', (d, i) => yOffset + (legendItemSize + legendSpacing) * i + 12)
-            .text(d => d.name);  
+            .text(d => d.name); 
+            legend
+            .append('text')
+            .attr('x', 10)
+            .attr('y', 10)
+            .text(d => "(vehicles with largest sales)"); 
+            
         }
   
         function add_cafe_and_oil(x,y,y_dollar) {
@@ -290,17 +328,6 @@
                     .style("opacity", 0);
                 });
         }
-            // https://www.fueleconomy.gov/feg/epadata/emissions.csv.zip
-            // https://www.eia.gov/dnav/pet/hist/LeafHandler.ashx?n=pet&s=f000000__3&f=m
-            // https://en.wikipedia.org/wiki/Corporate_average_fuel_economy
-            // https://www.fordification.net/tech/production-numbers.htm
-            // https://www.upi.com/Archives/1989/01/05/Pickup-trucks-lead-the-best-selling-vehicle-list-again-in-1988/8794599979600/
-            // https://www.orlandosentinel.com/1988/01/08/best-selling-vehicle-in-87-was-ford-truck/
-            // https://www.fueleconomy.gov/feg/PowerSearch.do?action=noform&path=1&year1=2000&year2=2022&make=ford&baseModel=f150&srchtyp=ymm&pageno=1&rowLimit=200&sortBy=Comb&tabView=0
-            // https://www.brookings.edu/wp-content/uploads/2016/07/2009a_bpea_hamilton-1.pdf
-            // https://ecommons.luc.edu/cgi/viewcontent.cgi?article=1087&context=business_facpubs
-            // https://blogs.worldbank.org/en/developmenttalk/what-triggered-oil-price-plunge-2014-2016-and-why-it-failed-deliver-economic-impetus-eight-charts
-            // https://www.eia.gov/todayinenergy/detail.php?id=50738
         function add_F150_highlights() {
             const x_ford = d3.scaleLinear()
                 .domain([1984,2025])
@@ -339,7 +366,7 @@
                     .style("opacity", 1);
                     ford_note = document.getElementById("ford_note");
                     ford_note.innerHTML = d.note
-                    graph_tooltip.html("Ford F150 Sales: " + parseInt(d.sales,10))
+                    graph_tooltip.html("Ford F150 Sales: " + parseInt(d.sales,10) + " Thousand")
                     .style("left", (event.pageX) + "px")
                     .style("top", (event.pageY - 28) + "px");
                 })
@@ -487,17 +514,17 @@
             switch(num) {
                 case 4:
                 narrative.innerHTML = "Corporate average fuel economy (CAFE) standards were created in 1975, after an Oil Embargo, to improve  \
-                    average fuel economy.  But it was no match for the most popular vehicle sold - the Ford F-150, which starts with 6 cylinders. \
+                    average fuel economy.  But they were no match for the most popular vehicle sold - the Ford F-150, which starts with 6 cylinders. \
                     The average 4 cylinder MPG rating shows slight improvement after 4 decades, but..."
                     break;
                 case 6:
                 narrative.innerHTML = "Once the F-150 gets included (with 6 or 8 cylinders), the average MPG ratings slow dramatically..."
                     break;
                 case 8:
-                narrative.innerHTML = "The improvement is only +2 MPG after 40 years!  Even though Americans complain about the price of gas..."
+                narrative.innerHTML = "The improvement is only a few MPG after 40 years!  Even though Americans complain about the price of gas..."
                     break;
                 case 10:
-                narrative.innerHTML = "They still buy cars that have no improvement (with 10 cylinders) in gas consumption in 40 years.  F-150 is still the top selling vehicle in the United States!"
+                narrative.innerHTML = "Americans love trucks.  There is no improvement (with 10 cylinders) in gas consumption in 40 years.  Demand only responds temporarily to oil shocks."
                     break;
                 default:
                     // code block
