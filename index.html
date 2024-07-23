@@ -9,6 +9,7 @@
     #narrative {
         float: left;
         width: 150px; 
+        height: 400px;
     }
     #graph_area {
         float: left;
@@ -32,6 +33,13 @@
     #f150_area {
         float: left;
         width: 350px; 
+    }
+    .annotation-group {
+        font-size: 10px;
+        height: 50px;
+        width: 25px;
+        font-weight: bold;
+        color: "black";
     }
 </style>
 <html>
@@ -69,18 +77,22 @@
       <h3>Ford F-150 Truck Sales</h3>
       <div id="bottom">
         <div id='ford_note'>
-            In 1975, Ford introduced the F-150 after a global fuel crisis. It was popular from its similarity to the F-100, but as a heavy-duty truck avoided emissions regulations.
+            In 1975, Ford introduced the F-150 after a global fuel crisis. It was popular from its similarity to the F-100. As a heavy-duty truck it avoided emissions regulations,
+            so it didn't need catalytic converters or smog pumps and burned "regular" leaded gasoline.
             Mouse over the dots to see how little the MPG ratings have changed over 4 decades of the F-150!
         </div>
         <div id='f150_area'></div>
       </div>
     <script>
-        var axy1 = {};
+        var axy1 = {}, axy2 = {}, axy3 = {}, axy4 = {}, axy5 = {}, axy6 = {}, axy7 = {};
         // x,y,dx,dy
-        axy1[4]=[300,260,0,30];
-        axy1[6]=[300,305,-100,-125];
-        axy1[8]=[300,330,-100,-155];
-        axy1[10]=[300,345,-100,-155];
+        axy1[4]=[115,330,-35,-110];        axy1[6]=axy1[4];        axy1[8]=axy1[4];        axy1[10]=axy1[4];
+        axy2[4]=[225,320,-100,-140];        axy2[6]=axy2[4];        axy2[8]=axy2[4];        axy2[10]=axy2[4];
+        axy3[4]=[235,300,-60,-160];        axy3[6]=axy3[4];        axy3[8]=axy3[4];        axy3[10]=axy3[4];
+        axy4[4]=[260,170,-100,-80];        axy4[6]=axy4[4];        axy4[8]=axy4[4];        axy4[10]=axy4[4];
+        axy5[4]=[300,260,-80,-55];        axy5[6]=[300,305,-100,-85];        axy5[8]=[300,330,0,-25];        axy5[10]=[300,345,0,-40];
+        axy6[4]=[330,60,20,-30];        axy6[6]=axy6[4];        axy6[8]=axy6[4];        axy6[10]=axy6[4];
+        axy7[4]=[390,140,-20,-40];        axy7[6]=axy7[4];        axy7[8]=axy7[4];        axy7[10]=axy7[4];
         var car_cylinders = {};
         var cafe_data = {};
         current_cylinder_num = 4;
@@ -278,13 +290,17 @@
                     .style("opacity", 0);
                 });
         }
-            // 
-            // Because of the designation as a heavy-duty truck it didn't need catalytic converters or smog pumps and burned "regular" leaded gasoline
+            // https://www.fueleconomy.gov/feg/epadata/emissions.csv.zip
+            // https://www.eia.gov/dnav/pet/hist/LeafHandler.ashx?n=pet&s=f000000__3&f=m
+            // https://en.wikipedia.org/wiki/Corporate_average_fuel_economy
             // https://www.fordification.net/tech/production-numbers.htm
             // https://www.upi.com/Archives/1989/01/05/Pickup-trucks-lead-the-best-selling-vehicle-list-again-in-1988/8794599979600/
             // https://www.orlandosentinel.com/1988/01/08/best-selling-vehicle-in-87-was-ford-truck/
             // https://www.fueleconomy.gov/feg/PowerSearch.do?action=noform&path=1&year1=2000&year2=2022&make=ford&baseModel=f150&srchtyp=ymm&pageno=1&rowLimit=200&sortBy=Comb&tabView=0
-
+            // https://www.brookings.edu/wp-content/uploads/2016/07/2009a_bpea_hamilton-1.pdf
+            // https://ecommons.luc.edu/cgi/viewcontent.cgi?article=1087&context=business_facpubs
+            // https://blogs.worldbank.org/en/developmenttalk/what-triggered-oil-price-plunge-2014-2016-and-why-it-failed-deliver-economic-impetus-eight-charts
+            // https://www.eia.gov/todayinenergy/detail.php?id=50738
         function add_F150_highlights() {
             const x_ford = d3.scaleLinear()
                 .domain([1984,2025])
@@ -294,7 +310,7 @@
                 .call(d3.axisBottom(x_ford).tickFormat(d3.format("d")));
             // Add MPG Y axis
             const y_ford = d3.scaleLinear()
-                .domain([0, 1000000])
+                .domain([0, 1000])
                 .range([height2, 0]);
             svg_ford.append("g")
                 .call(d3.axisLeft(y_ford));
@@ -331,46 +347,96 @@
                     graph_tooltip.transition()
                     .style("opacity", 0);
                 });
+            svg_ford.append("text")      
+                .attr("transform", "translate(" + (width2 / 2) + " ," + (height2 + margin2.bottom) + ")")
+                .style("text-anchor", "middle")
+                .text("Year");
+            svg_ford.append("text")
+                .attr("transform", 'rotate(-90)')
+                .attr("y", 0 - margin2.left)
+                .attr("x",0 - (height2 / 2))
+                .attr("dy", '1em')
+                .style("text-anchor", 'middle')
+                .text("# Trucks Sold in Thousands");
         }
 
         function add_annotations() {
             d3.select(".annotations").remove()
             annotations = 
-            [{
+            [
+            {
                 note: {
-                        label: "Obama CAFE Implemented",
-                        title: "2011"
+                    label: "Gulf War",
+                    title: "1990"
                 },
                 id: "1",
-                // If you don't provide a custom "type" attribute in your options dictionary, , 
-                // the default type in the getAnnotations function will be used.
                 data: car_cylinders[current_cylinder_num],
-                x: axy1[current_cylinder_num][0],
-                y: axy1[current_cylinder_num][1],
-                dx: axy1[current_cylinder_num][2], 
-                dy: axy1[current_cylinder_num][3] 
+                x: axy1[current_cylinder_num][0], y: axy1[current_cylinder_num][1],
+                dx: axy1[current_cylinder_num][2], dy: axy1[current_cylinder_num][3] 
             },
             {
                 note: {
-                        label: "Obama CAFE Implemented",
-                        title: "2011"
+                    label: "OPEC cuts quota and Petróleos de V. strikes.",
+                    title: "2002"
                 },
-                id: "1",
-                // If you don't provide a custom "type" attribute in your options dictionary, , 
-                // the default type in the getAnnotations function will be used.
+                id: "2",
                 data: car_cylinders[current_cylinder_num],
-                x: axy1[current_cylinder_num][0],
-                y: axy1[current_cylinder_num][1],
-                dx: axy1[current_cylinder_num][2], 
-                dy: axy1[current_cylinder_num][3] 
-            }]  
-            // In 1975, Ford introduced the F-150 after a global fuel crisis. It gained popularity because it looked similar to the F-100, but categorized as a heavy-duty truck to avoid emissions regulations.
-            // Because of the designation as a heavy-duty truck it didn't need catalytic converters or smog pumps and burned "regular" leaded gasoline
+                x: axy2[current_cylinder_num][0],  y: axy2[current_cylinder_num][1],
+                dx: axy2[current_cylinder_num][2], dy: axy2[current_cylinder_num][3] 
+            },
+            {
+                note: {
+                    label: "Iraq War",
+                    title: "2003"
+                },
+                id: "3",
+                data: car_cylinders[current_cylinder_num],
+                x: axy3[current_cylinder_num][0],  y: axy3[current_cylinder_num][1],
+                dx: axy3[current_cylinder_num][2], dy: axy3[current_cylinder_num][3] 
+            },
+            {
+                note: {
+                    label: "Demand up, supply issues, dollar decline",
+                    title: "2006"
+                },
+                id: "4",
+                data: car_cylinders[current_cylinder_num],
+                x: axy4[current_cylinder_num][0],  y: axy4[current_cylinder_num][1],
+                dx: axy4[current_cylinder_num][2], dy: axy4[current_cylinder_num][3] 
+            },
+            {
+                note: {
+                    label: "Obama CAFE Implemented",
+                    title: "2011"
+                },
+                id: "5",
+                data: car_cylinders[current_cylinder_num],
+                x: axy5[current_cylinder_num][0], y: axy5[current_cylinder_num][1],
+                dx: axy5[current_cylinder_num][2], dy: axy5[current_cylinder_num][3] 
+            },
+            {
+                note: {
+                    label: "Shale oil",
+                    title: "2014"
+                },
+                id: "6",
+                data: car_cylinders[current_cylinder_num],
+                x: axy6[current_cylinder_num][0],  y: axy6[current_cylinder_num][1],
+                dx: axy6[current_cylinder_num][2], dy: axy6[current_cylinder_num][3] 
+            },
+            {
+                note: {
+                    label: "Pandemic ends",
+                    title: "2021"
+                },
+                id: "7",
+                data: car_cylinders[current_cylinder_num],
+                x: axy7[current_cylinder_num][0],  y: axy7[current_cylinder_num][1],
+                dx: axy7[current_cylinder_num][2], dy: axy7[current_cylinder_num][3] 
+            }]
             var makeAnnotations = d3.annotation()
                 .editMode(true)
-                //also can set and override in the note.padding property
-                //of the annotation object
-                .notePadding(15)
+                .notePadding(2)
                 .type(d3.annotationLabel)
                 .annotations(annotations)
             d3.select("svg")
@@ -416,6 +482,28 @@
                 });
         }
 
+        function set_narrative(num) {
+            narrative = document.getElementById("narrative");
+            switch(num) {
+                case 4:
+                narrative.innerHTML = "Corporate average fuel economy (CAFE) standards were created in 1975, after an Oil Embargo, to improve  \
+                    average fuel economy.  But it was no match for the most popular vehicle sold - the Ford F-150, which starts with 6 cylinders. \
+                    The average 4 cylinder MPG rating shows slight improvement after 4 decades, but..."
+                    break;
+                case 6:
+                narrative.innerHTML = "Once the F-150 gets included (with 6 or 8 cylinders), the average MPG ratings slow dramatically..."
+                    break;
+                case 8:
+                narrative.innerHTML = "The improvement is only +2 MPG after 40 years!  Even though Americans complain about the price of gas..."
+                    break;
+                case 10:
+                narrative.innerHTML = "They still buy cars that have no improvement (with 10 cylinders) in gas consumption in 40 years.  F-150 is still the top selling vehicle in the United States!"
+                    break;
+                default:
+                    // code block
+                }
+        }
+
         function set_cylinder(num) {
             // clear
             // d3.select("#graph_area").html=""
@@ -447,6 +535,7 @@
             add_cafe_and_oil(x,y,y_dollar);
             add_annotations();
             create_axis_titles();
+            set_narrative(num);
         }
         </script>
 </body>
