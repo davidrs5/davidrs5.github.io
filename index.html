@@ -65,7 +65,7 @@
 <body onload='init()'>
     <form>
         <fieldset>
-          <legend># of Cylinders:</legend>
+          <legend>Change the # of Cylinders to see how the average MPG of cars with those cylinders changes through time:</legend>
           <div>
             <input type="radio" id="c4" name="cylinders" value="4"  onchange="set_cylinder(4)" checked="checked"/>
             <label for="c4">4</label>
@@ -222,7 +222,7 @@
             var chartData = [
                 {name: "CAFE", color: "green"},
                 {name: "Oil $/Barrel", color: "black"},
-                {name: "mean MPG", color: "steelblue"},
+                {name: "average MPG", color: "steelblue"},
                 ];
             var legendItemSize = 12;
             var legendSpacing = 4;
@@ -366,7 +366,7 @@
                     .style("opacity", 1);
                     ford_note = document.getElementById("ford_note");
                     ford_note.innerHTML = d.note
-                    graph_tooltip.html("Ford F-150 Sales: " + parseInt(d.sales,10) + " Thousand")
+                    graph_tooltip.html("Year: " + parseInt(d.year,10) + "<br/>Ford F-150 Sales: " + parseInt(d.sales,10) + " Thousand")
                     .style("left", (event.pageX) + "px")
                     .style("top", (event.pageY - 28) + "px");
                 })
@@ -515,16 +515,16 @@
                 case 4:
                 narrative.innerHTML = "Corporate average fuel economy (CAFE) standards were created in 1975, after an Oil Embargo, to improve  \
                     average fuel economy.  But they were no match for the most popular vehicle sold - the Ford F-150, which starts with 6 cylinders. \
-                    The average 4 cylinder MPG rating shows slight improvement after 4 decades, but..."
+                    The average 4 cylinder MPG rating shows slight improvement after 4 decades, but... [click Next]"
                     break;
                 case 6:
-                narrative.innerHTML = "Once the F-150 gets included (with 6 or 8 cylinders), the amount the average MPG rating increases slows dramatically..."
+                narrative.innerHTML = "Once the F-150 gets included (with 6 or 8 cylinders), the amount the average MPG rating increases slows dramatically... [click Next]"
                     break;
                 case 8:
-                narrative.innerHTML = "The improvement is only a few MPG after 40 years!  Even though Americans complain about the price of gas..."
+                narrative.innerHTML = "The improvement is only a few MPG after 40 years!  Even though Americans complain about the price of gas... [click Next]"
                     break;
                 case 10:
-                narrative.innerHTML = "Americans love trucks.  There is no improvement (with 10 cylinders) in gas consumption in 40 years.  Demand only responds temporarily to oil shocks."
+                narrative.innerHTML = "Americans love trucks.  There is no improvement (with 10 cylinders) in gas consumption in 40 years.  Demand only responds temporarily to oil shocks. [click start again]"
                     break;
                 default:
                     // code block
